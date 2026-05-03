@@ -1,0 +1,472 @@
+<div class="curl-detector">
+    <div class="step active" data-step="0">
+        <label class="question-label">What shape best describes your hair pattern?</label>
+        <div class="option-group" data-category="curlPattern">
+            <button type="button" data-value="Type 2: Wavy Hair">Loose S-shaped waves</button>
+            <button type="button" data-value="Type 3: Curly Hair">Defined curls or ringlets</button>
+            <button type="button" data-value="Type 4: Coily Hair">Tight coils or zig-zag curls</button>
+        </div>
+    </div>
+
+    <div class="step" data-step="1">
+        <label class="question-label">How does your hair react to water?</label>
+        <div class="option-group" data-category="porosity">
+            <button type="button" data-value="Low Porosity">Water sits on top or takes time to absorb</button>
+            <button type="button" data-value="Medium Porosity">Water absorbs and holds moisture fairly well</button>
+            <button type="button" data-value="High Porosity">Water absorbs quickly but dries out fast</button>
+        </div>
+    </div>
+
+    <div class="step" data-step="2">
+        <label class="question-label">How easy is it to see your scalp?</label>
+        <div class="option-group" data-category="density">
+            <button type="button" data-value="Low Density">Easy to see without moving much hair</button>
+            <button type="button" data-value="Medium Density">Visible when hair is parted</button>
+            <button type="button" data-value="High Density">Hard to see, even when parted</button>
+        </div>
+    </div>
+
+    <div class="step" data-step="3">
+        <label class="question-label">How does one hair strand feel between your fingers?</label>
+        <div class="option-group" data-category="strandThickness">
+            <button type="button" data-value="Fine Strands">Barely noticeable or hard to feel</button>
+            <button type="button" data-value="Medium Strands">Slightly noticeable</button>
+            <button type="button" data-value="Coarse Strands">Easy to feel, strong, or textured</button>
+        </div>
+    </div>
+
+    <div class="step" data-step="4">
+        <label class="question-label">How would you describe your hair right now?</label>
+        <div class="option-group" data-category="hairCondition">
+            <button type="button" data-value="Healthy / Balanced">Soft, flexible, and holds curl shape</button>
+            <button type="button" data-value="Dry or Frizzy">Feels dry, frizzy, or rough</button>
+            <button type="button" data-value="Damaged or Fragile">Breaks easily, feels brittle, or has heat/color damage</button>
+        </div>
+    </div>
+
+    <div class="step result-step" data-step="5">
+        <div id="curlProfileResult" class="result-box"></div>
+
+        <button type="button" class="download-button" onclick="downloadHairProfilePDF()">
+            Download My Hair Profile
+        </button>
+    </div>
+
+    <div class="nav-row">
+        <button type="button" class="nav-button" onclick="previousStep()">Back</button>
+        <span id="stepCounter">1 / 5</span>
+        <button type="button" class="nav-button" onclick="nextStep()">Next</button>
+    </div>
+</div>
+
+<!-- PDF download library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+    @font-face {
+        font-family: "ABeeZee";
+        src: url("ABeeZee-Regular.woff2") format("woff2");
+        font-weight: normal;
+        font-style: normal;
+    }
+
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: #ffffff;
+    }
+
+    .curl-detector {
+        font-family: "ABeeZee", Arial, sans-serif;
+        background-color: #ffffff;
+        color: #000000;
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 24px;
+        box-sizing: border-box;
+    }
+
+    .step {
+        display: none;
+        background-color: #ffffff;
+        border-radius: 22px;
+        padding: 20px;
+        box-shadow: 0 0 0 2px #C8B6E2;
+    }
+
+    .step.active {
+        display: block;
+    }
+
+    .question-label {
+        display: block;
+        font-size: 21px;
+        line-height: 1.4;
+        margin-bottom: 14px;
+        color: #000000;
+    }
+
+    .option-group {
+        display: grid;
+        gap: 10px;
+    }
+
+    .option-group button {
+        font-family: "ABeeZee", Arial, sans-serif;
+        font-size: 17px;
+        line-height: 1.4;
+        text-align: left;
+        color: #000000;
+        background-color: #ffffff;
+        border: 2px solid #C8B6E2;
+        border-radius: 999px;
+        padding: 12px 18px;
+        cursor: pointer;
+        transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .option-group button:hover {
+        background-color: #C8B6E2;
+        transform: translateY(-1px);
+    }
+
+    .option-group button.selected {
+        background-color: #8E75C7;
+        border-color: #8E75C7;
+        color: #ffffff;
+    }
+
+    .nav-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 14px;
+        margin-top: 18px;
+    }
+
+    .nav-button,
+    .download-button {
+        font-family: "ABeeZee", Arial, sans-serif;
+        font-size: 18px;
+        color: #ffffff;
+        background-color: #8E75C7;
+        border: none;
+        border-radius: 999px;
+        padding: 12px 22px;
+        cursor: pointer;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .nav-button:hover,
+    .download-button:hover {
+        background-color: #C8B6E2;
+        color: #000000;
+        transform: translateY(-2px);
+    }
+
+    .nav-button:disabled {
+        background-color: #C8B6E2;
+        color: #000000;
+        cursor: not-allowed;
+        transform: none;
+        opacity: 0.7;
+    }
+
+    #stepCounter {
+        font-size: 17px;
+        color: #000000;
+    }
+
+    .result-box {
+        background-color: #C8B6E2;
+        color: #000000;
+        border-radius: 20px;
+        padding: 20px;
+        line-height: 1.6;
+        font-size: 18px;
+    }
+
+    .result-box ul {
+        margin: 10px 0 0 0;
+        padding-left: 22px;
+    }
+
+    .download-button {
+        margin-top: 18px;
+    }
+
+    .pdf-hidden-wrapper {
+        position: fixed;
+        left: -9999px;
+        top: 0;
+        width: 700px;
+        z-index: -1;
+    }
+
+    .pdf-page {
+        font-family: "ABeeZee", Arial, sans-serif;
+        background-color: #ffffff;
+        color: #000000;
+        padding: 40px;
+        width: 700px;
+        border-radius: 24px;
+    }
+
+    .pdf-header {
+        background-color: #8E75C7;
+        color: #ffffff;
+        padding: 22px;
+        border-radius: 20px;
+        margin-bottom: 24px;
+    }
+
+    .pdf-header h1 {
+        margin: 0;
+        font-size: 30px;
+    }
+
+    .pdf-subtitle {
+        margin-top: 8px;
+        font-size: 18px;
+        color: #ffffff;
+    }
+
+    .pdf-section {
+        background-color: #C8B6E2;
+        color: #000000;
+        padding: 24px;
+        border-radius: 20px;
+        line-height: 1.6;
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+
+    .pdf-section h2 {
+        margin-top: 0;
+        font-size: 24px;
+    }
+
+    .pdf-section ul {
+        margin: 10px 0 0 0;
+        padding-left: 24px;
+    }
+
+    .pdf-note {
+        background-color: #ffffff;
+        color: #000000;
+        box-shadow: 0 0 0 2px #C8B6E2;
+        padding: 22px;
+        border-radius: 20px;
+        line-height: 1.6;
+        font-size: 18px;
+    }
+
+    .pdf-footer {
+        margin-top: 24px;
+        font-size: 16px;
+        color: #000000;
+    }
+</style>
+
+<script>
+    let currentStep = 0;
+    const totalQuestionSteps = 5;
+
+    const selections = {
+        curlPattern: "",
+        porosity: "",
+        density: "",
+        strandThickness: "",
+        hairCondition: ""
+    };
+
+    document.querySelectorAll(".option-group button").forEach((button) => {
+        button.addEventListener("click", () => {
+            const group = button.parentElement;
+            const category = group.getAttribute("data-category");
+
+            group.querySelectorAll("button").forEach((btn) => {
+                btn.classList.remove("selected");
+            });
+
+            button.classList.add("selected");
+            selections[category] = button.getAttribute("data-value");
+        });
+    });
+
+    function showStep(stepNumber) {
+        const steps = document.querySelectorAll(".step");
+
+        steps.forEach((step) => {
+            step.classList.remove("active");
+        });
+
+        document.querySelector(`[data-step="${stepNumber}"]`).classList.add("active");
+
+        const backButton = document.querySelector(".nav-button:first-child");
+        const nextButton = document.querySelector(".nav-button:last-child");
+        const stepCounter = document.getElementById("stepCounter");
+
+        backButton.disabled = stepNumber === 0;
+
+        if (stepNumber < totalQuestionSteps) {
+            stepCounter.textContent = `${stepNumber + 1} / ${totalQuestionSteps}`;
+            stepCounter.style.display = "inline-block";
+            nextButton.textContent = stepNumber === totalQuestionSteps - 1 ? "Show Results" : "Next";
+            nextButton.style.display = "inline-block";
+        } else {
+            stepCounter.textContent = "";
+            stepCounter.style.display = "none";
+            nextButton.style.display = "none";
+            showCurlProfile();
+        }
+    }
+
+    function nextStep() {
+        if (currentStep < totalQuestionSteps) {
+            const currentQuestion = document.querySelector(`[data-step="${currentStep}"] .option-group`);
+
+            if (currentQuestion) {
+                const category = currentQuestion.getAttribute("data-category");
+
+                if (!selections[category]) {
+                    alert("Please select an answer before continuing.");
+                    return;
+                }
+            }
+
+            currentStep++;
+            showStep(currentStep);
+        }
+    }
+
+    function previousStep() {
+        if (currentStep > 0) {
+            currentStep--;
+            showStep(currentStep);
+        }
+    }
+
+    function showCurlProfile() {
+        const resultBox = document.getElementById("curlProfileResult");
+        const recommendation = getRecommendation(selections);
+
+        resultBox.innerHTML = `
+      <strong>Your Curl Profile:</strong>
+      <ul>
+        <li><strong>Curl Pattern:</strong> ${selections.curlPattern}</li>
+        <li><strong>Porosity:</strong> ${selections.porosity}</li>
+        <li><strong>Density:</strong> ${selections.density}</li>
+        <li><strong>Strand Thickness:</strong> ${selections.strandThickness}</li>
+        <li><strong>Hair Condition:</strong> ${selections.hairCondition}</li>
+      </ul>
+
+      <p><strong>What this may mean:</strong></p>
+      <p>${recommendation}</p>
+    `;
+    }
+
+    function getRecommendation(profile) {
+        let message = "";
+
+        if (profile.curlPattern.includes("Type 2")) {
+            message += "Your hair may respond best to lightweight products that define waves without weighing them down. ";
+        } else if (profile.curlPattern.includes("Type 3")) {
+            message += "Your hair may benefit from moisture, curl definition, and frizz control. ";
+        } else if (profile.curlPattern.includes("Type 4")) {
+            message += "Your hair may benefit from rich moisture, gentle detangling, and protective habits. ";
+        }
+
+        if (profile.porosity.includes("Low")) {
+            message += "Low porosity hair may benefit from lightweight products and gentle warmth to help products absorb. ";
+        } else if (profile.porosity.includes("High")) {
+            message += "High porosity hair may need leave-ins, creams, or sealing products to help hold moisture longer. ";
+        } else {
+            message += "Medium porosity hair often responds well to a balanced routine with moisture and light styling support. ";
+        }
+
+        if (profile.strandThickness.includes("Fine")) {
+            message += "Fine strands can be weighed down easily, so avoid using too much heavy butter or oil at once. ";
+        } else if (profile.strandThickness.includes("Coarse")) {
+            message += "Coarse strands may benefit from richer conditioners or creams for softness. ";
+        }
+
+        if (profile.hairCondition.includes("Damaged")) {
+            message += "Since your hair may be fragile or damaged, focus on gentle handling, less heat, moisture, and occasional strengthening support.";
+        } else if (profile.hairCondition.includes("Dry")) {
+            message += "Since your hair may feel dry or frizzy, focus on hydration, conditioning, and protection from friction.";
+        } else {
+            message += "Since your hair seems balanced, a simple consistent routine may be enough to maintain healthy curls.";
+        }
+
+        return message;
+    }
+
+    function downloadHairProfilePDF() {
+        const recommendation = getRecommendation(selections);
+
+        const hiddenWrapper = document.createElement("div");
+        hiddenWrapper.className = "pdf-hidden-wrapper";
+
+        const pdfContent = document.createElement("div");
+        pdfContent.className = "pdf-page";
+
+        pdfContent.innerHTML = `
+      <div class="pdf-header">
+        <h1>My Curl Profile</h1>
+        <div class="pdf-subtitle">A personalized profile from Curl Care 101</div>
+      </div>
+
+      <div class="pdf-section">
+        <h2>Your Results</h2>
+        <ul>
+          <li><strong>Curl Pattern:</strong> ${escapeHTML(selections.curlPattern)}</li>
+          <li><strong>Porosity:</strong> ${escapeHTML(selections.porosity)}</li>
+          <li><strong>Density:</strong> ${escapeHTML(selections.density)}</li>
+          <li><strong>Strand Thickness:</strong> ${escapeHTML(selections.strandThickness)}</li>
+          <li><strong>Hair Condition:</strong> ${escapeHTML(selections.hairCondition)}</li>
+        </ul>
+      </div>
+
+      <div class="pdf-note">
+        <strong>What this may mean:</strong><br><br>
+        ${escapeHTML(recommendation)}
+      </div>
+
+      <div class="pdf-footer">
+        Downloaded from Curl Care 101
+      </div>
+    `;
+
+        hiddenWrapper.appendChild(pdfContent);
+        document.body.appendChild(hiddenWrapper);
+
+        const options = {
+            margin: 0.4,
+            filename: "my-curl-profile.pdf",
+            image: { type: "jpeg", quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: "in", format: "letter", orientation: "portrait" }
+        };
+
+        html2pdf()
+            .set(options)
+            .from(pdfContent)
+            .save()
+            .then(() => {
+                document.body.removeChild(hiddenWrapper);
+            });
+    }
+
+    function escapeHTML(text) {
+        return String(text)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    showStep(currentStep);
+</script>
